@@ -1,0 +1,50 @@
+import string
+import numpy as np
+import pandas as pd
+import nltk
+from nltk.corpus import stopwords
+from nltk.stem.porter import PorterStemmer
+from nltk.tokenize import word_tokenize
+from nltk.stem import WordNetLemmatizer
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, classification_report
+nltk.download('stopwords')
+df = pd.read_csv('/content/spam_ham_dataset.csv')
+df.head
+df.head(5)
+print(df)
+df['text'] = df['text'].apply(lambda x: x.replace('\r\n' , ' '))
+df.head(5)
+df.text.iloc[1]
+df.info()
+df.dropna()
+df.info()
+stemmer = PorterStemmer()
+stemmer.stem('running')
+corpus = []
+stopwords_set = set(stopwords.words('english'))
+for i in range(len(df)):
+  text = df['text'].iloc[i].lower()
+  text = text.translate(str.maketrans('' , '' , string.punctuation)).split()
+  text = [stemmer.stem(word) for word in text if word not in stopwords_set]
+  text = ' '.join(text)
+  corpus.append(text)
+corpus[0]
+vectorizer = CountVectorizer()
+
+x = vectorizer.fit_transform(corpus).toarray()
+y = df.label_num
+
+x_train , x_test , y_train , y_test = train_test_split(x , y , test_size=0.2)
+clf = RandomForestClassifier(n_jobs=-1)
+clf.fit(x_train , y_train)
+clf.score(x_test , y_test)
+email_to_classify = df.text.values[10]
+print(email_to_classify)
+email_corpus = [email_text]
+x_email = vectorizer.transform(email_corpus)
+clf.predict(x_email)
+df.label_num.iloc[10]
+df.iloc[10]
